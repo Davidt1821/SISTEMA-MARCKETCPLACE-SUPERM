@@ -1,11 +1,14 @@
 from django.urls import path
 
+from orders import reports
 from . import panel
 
 urlpatterns = [
     path('login/', panel.supermarket_login, name='market-login'),
     path('logout/', panel.supermarket_logout, name='market-logout'),
     path('dashboard/', panel.dashboard, name='market-dashboard'),
+    path('relatorios/', reports.market_reports, name='market-reports'),
+    path('relatorios/exportar-pedidos/', reports.export_market_orders, name='market-reports-export-orders'),
     path('pedidos/', panel.order_list, name='market-orders'),
     path('pedidos/<int:pk>/', panel.order_detail, name='market-order-detail'),
     path('precos/', panel.price_list, name='market-prices'),

@@ -1,0 +1,117 @@
+{% extends "public_pages/base.html" %}
+
+{% block title %}Relatorios da plataforma{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Plataforma</p>
+                <h1>Relatorios gerenciais</h1>
+            </div>
+            <a class="link-button" href="{% url 'platform-reports-export-orders' %}?{{ request.GET.urlencode }}">Exportar pedidos CSV</a>
+        </div>
+
+        <form class="search-panel compact-panel" method="get">
+            <div class="filter-grid four-columns">
+                <label>
+                    <span>Data inicial</span>
+                    <input type="date" name="date_from" value="{{ filters.date_from }}">
+                </label>
+                <label>
+                    <span>Data final</span>
+                    <input type="date" name="date_to" value="{{ filters.date_to }}">
+                </label>
+                <label>
+                    <span>Supermercado</span>
+                    <select name="supermarket">
+                        <option value="">Todos</option>
+                        {% for supermarket in supermarkets %}
+                            <option value="{{ supermarket.id }}" {% if filters.supermarket == supermarket.id|stringformat:"s" %}selected{% endif %}>{{ supermarket.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    <span>Status</span>
+                    <select name="status">
+                        <option value="">Todos</option>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    <span>Atendimento</span>
+                    <select name="fulfillment_method">
+                        <option value="">Todos</option>
+                        {% for value, label in fulfillment_choices %}
+                            <option value="{{ value }}" {% if filters.fulfillment_method == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </div>
+            <button class="secondary-button" type="submit">Filtrar</button>
+        </form>
+
+        <section class="stats-grid">
+            <article class="stat-card"><span>Supermercados ativos</span><strong>{{ total_active_supermarkets }}</strong></article>
+            <article class="stat-card"><span>Produtos ativos</span><strong>{{ total_active_products }}</strong></article>
+            <article class="stat-card"><span>Total de pedidos</span><strong>{{ total_orders }}</strong></article>
+            <article class="stat-card"><span>Total estimado</span><strong>R$ {{ total_estimated }}</strong></article>
+            <article class="stat-card"><span>Ticket medio</span><strong>R$ {{ avg_ticket }}</strong></article>
+            <article class="stat-card"><span>Promocoes ativas</span><strong>{{ active_promotions }}</strong></article>
+        </section>
+
+        <div class="reports-grid">
+            <section class="compare-card">
+                <h2>Supermercados por pedidos</h2>
+                {% if supermarket_ranking_by_orders %}
+                    <div class="price-table-wrapper">
+                        <table class="price-table">
+                            <thead><tr><th>Supermercado</th><th>Pedidos</th></tr></thead>
+                            <tbody>
+                                {% for row in supermarket_ranking_by_orders %}
+                                    <tr><td>{{ row.supermarket__name }}</td><td>{{ row.total_orders }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="empty-state">Nenhum pedido no periodo.</p>
+                {% endif %}
+            </section>
+
+            <section class="compare-card">
+                <h2>Supermercados por total</h2>
+                {% if supermarket_ranking_by_total %}
+                    <div class="price-table-wrapper">
+                        <table class="price-table">
+                            <thead><tr><th>Supermercado</th><th>Total</th></tr></thead>
+                            <tbody>
+                                {% for row in supermarket_ranking_by_total %}
+                                    <tr><td>{{ row.supermarket__name }}</td><td>R$ {{ row.total_estimated }}</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="empty-state">Nenhum pedido no periodo.</p>
+                {% endif %}
+            </section>
+        </div>
+
+        <div class="reports-grid">
+            <section class="compare-card">
+                <h2>Produtos mais pedidos</h2>
+                {% include "reports/products_table.html" with rows=top_products name_field="product_name_snapshot" %}
+            </section>
+
+            <section class="compare-card">
+                <h2>Categorias mais movimentadas</h2>
+                {% include "reports/products_table.html" with rows=top_categories name_field="product__category__name" %}
+            </section>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "market_panel/base.html" %}
+
+{% block title %}Relatorios do supermercado{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <div>
+        <p class="eyebrow">Relatorios</p>
+        <h1>{{ profile.supermarket.name }}</h1>
+    </div>
+    <a class="link-button" href="{% url 'market-reports-export-orders' %}?{{ request.GET.urlencode }}">Exportar pedidos CSV</a>
+</div>
+
+<form class="search-panel compact-panel" method="get">
+    <div class="filter-grid four-columns">
+        <label>
+            <span>Data inicial</span>
+            <input type="date" name="date_from" value="{{ filters.date_from }}">
+        </label>
+        <label>
+            <span>Data final</span>
+            <input type="date" name="date_to" value="{{ filters.date_to }}">
+        </label>
+        <label>
+            <span>Status</span>
+            <select name="status">
+                <option value="">Todos</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            <span>Atendimento</span>
+            <select name="fulfillment_method">
+                <option value="">Todos</option>
+                {% for value, label in fulfillment_choices %}
+                    <option value="{{ value }}" {% if filters.fulfillment_method == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+    <button class="secondary-button" type="submit">Filtrar</button>
+</form>
+
+<section class="stats-grid">
+    <article class="stat-card"><span>Total de pedidos</span><strong>{{ total_orders }}</strong></article>
+    <article class="stat-card"><span>Total estimado</span><strong>R$ {{ total_estimated }}</strong></article>
+    <article class="stat-card"><span>Ticket medio</span><strong>R$ {{ avg_ticket }}</strong></article>
+</section>
+
+<div class="reports-grid">
+    <section class="compare-card">
+        <h2>Pedidos por status</h2>
+        {% include "reports/simple_count_table.html" with rows=orders_by_status label_field="status" %}
+    </section>
+
+    <section class="compare-card">
+        <h2>Pedidos por atendimento</h2>
+        {% include "reports/simple_count_table.html" with rows=orders_by_fulfillment label_field="fulfillment_method" %}
+    </section>
+</div>
+
+<div class="reports-grid">
+    <section class="compare-card">
+        <h2>Produtos mais pedidos</h2>
+        {% include "reports/products_table.html" with rows=top_products name_field="product_name_snapshot" %}
+    </section>
+
+    <section class="compare-card">
+        <h2>Categorias mais pedidas</h2>
+        {% include "reports/products_table.html" with rows=top_categories name_field="product__category__name" %}
+    </section>
+</div>
+
+<div class="reports-grid">
+    <section class="compare-card">
+        <h2>Bairros com mais entregas</h2>
+        {% if delivery_districts %}
+            <div class="price-table-wrapper">
+                <table class="price-table">
+                    <thead><tr><th>Bairro</th><th>Pedidos</th></tr></thead>
+                    <tbody>
+                        {% for row in delivery_districts %}
+                            <tr><td>{{ row.delivery_district }}</td><td>{{ row.total }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="empty-state">Nenhuma entrega no periodo.</p>
+        {% endif %}
+    </section>
+
+    <section class="compare-card">
+        <h2>Pedidos recentes</h2>
+        {% include "reports/recent_orders_table.html" with orders=recent_orders %}
+    </section>
+</div>
+{% endblock %}

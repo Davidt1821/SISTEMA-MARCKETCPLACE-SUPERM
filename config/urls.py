@@ -24,6 +24,7 @@ from rest_framework.routers import DefaultRouter
 from prices.views import ProductPriceViewSet
 from products.views import CategoryViewSet, ProductViewSet
 from promotions.views import PromotionViewSet
+from orders import reports
 from search.views import CompareProductPricesView, SearchProductsView
 from supermarkets.views import SupermarketViewSet
 
@@ -43,6 +44,8 @@ urlpatterns = [
     path('', include('orders.urls')),
     path('mercado/', include('accounts.urls')),
     path('cliente/', include('accounts.customer_urls')),
+    path('plataforma/relatorios/', reports.platform_reports, name='platform-reports'),
+    path('plataforma/relatorios/exportar-pedidos/', reports.export_platform_orders, name='platform-reports-export-orders'),
     path(
         'admin/importar-csv/',
         admin.site.admin_view(

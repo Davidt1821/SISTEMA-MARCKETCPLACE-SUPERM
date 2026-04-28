@@ -1,0 +1,24 @@
+{% if rows %}
+    <div class="price-table-wrapper">
+        <table class="price-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Quantidade</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr>
+                        <td>{% if name_field == "product_name_snapshot" %}{{ row.product_name_snapshot }}{% else %}{{ row.product__category__name|default:"Sem categoria" }}{% endif %}</td>
+                        <td>{{ row.total_quantity }}</td>
+                        <td>R$ {{ row.total_revenue }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <p class="empty-state">Nenhum item no periodo.</p>
+{% endif %}
