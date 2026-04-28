@@ -96,6 +96,7 @@
                 <h1>Comprovante do pedido {{ order.code }}</h1>
                 <p>Data: {{ order.created_at }}</p>
                 <p>Status: {{ order.get_status_display }}</p>
+                <p>Atendimento: {{ order.get_fulfillment_method_display }}</p>
             </div>
             <button class="print-button" type="button" onclick="window.print()">Imprimir</button>
         </div>
@@ -103,6 +104,9 @@
         <section>
             <h2>Cliente</h2>
             <p>{{ order.customer_name }}</p>
+            {% if order.fulfillment_method == "delivery" and order.delivery_address %}
+                <p>Endereco de entrega: {{ order.delivery_address }}</p>
+            {% endif %}
         </section>
 
         <section>
@@ -133,7 +137,9 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <p class="total">Total: R$ {{ order.total_amount }}</p>
+            <p class="total">Produtos: R$ {{ order.products_total }}</p>
+            <p class="total">Taxa de entrega: R$ {{ order.delivery_fee }}</p>
+            <p class="total">Total geral: R$ {{ order.final_total }}</p>
         </section>
 
         <p class="notice">Este documento nao e nota fiscal.</p>

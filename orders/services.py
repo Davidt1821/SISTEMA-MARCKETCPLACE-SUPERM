@@ -8,6 +8,17 @@ from search.querysets import annotated_prices_queryset
 from .models import Order, OrderItem
 
 
+def calculate_delivery_fee(supermarket, products_total, fulfillment_method):
+    if fulfillment_method != Order.FULFILLMENT_DELIVERY:
+        return Decimal('0.00')
+
+    minimum = supermarket.free_delivery_minimum
+    if minimum is not None and products_total >= minimum:
+        return Decimal('0.00')
+
+    return supermarket.default_delivery_fee or Decimal('0.00')
+
+
 def build_order_preview(session_items, supermarket):
     product_ids = [int(product_id) for product_id in session_items.keys()]
     products = Product.objects.filter(id__in=product_ids, is_active=True).select_related('category')
@@ -56,13 +67,27 @@ def build_order_preview(session_items, supermarket):
 
 @transaction.atomic
 def create_order_from_preview(supermarket, form_data, preview):
+    products_total = preview['total']
+    fulfillment_method = form_data['fulfillment_method']
+    delivery_fee = calculate_delivery_fee(supermarket, products_total, fulfillment_method)
+    final_total = products_total + delivery_fee
+
     order = Order.objects.create(
         supermarket=supermarket,
         customer_name=form_data['customer_name'],
         customer_phone=form_data['customer_phone'],
-        customer_address=form_data.get('customer_address') or '',
         notes=form_data.get('notes') or '',
-        total_amount=preview['total'],
+        fulfillment_method=fulfillment_method,
+        delivery_street=form_data.get('delivery_street') or '',
+        delivery_number=form_data.get('delivery_number') or '',
+        delivery_district=form_data.get('delivery_district') or '',
+        delivery_city=form_data.get('delivery_city') or '',
+        delivery_complement=form_data.get('delivery_complement') or '',
+        delivery_reference=form_data.get('delivery_reference') or '',
+        products_total=products_total,
+        delivery_fee=delivery_fee,
+        final_total=final_total,
+        total_amount=final_total,
     )
 
     items = []

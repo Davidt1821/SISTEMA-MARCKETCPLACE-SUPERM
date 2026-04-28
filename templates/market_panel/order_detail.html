@@ -24,8 +24,14 @@
             {% if order.customer_address %}<p><strong>Endereco:</strong> {{ order.customer_address }}</p>{% endif %}
             {% if order.notes %}<p><strong>Observacao do cliente:</strong> {{ order.notes }}</p>{% endif %}
             <p><strong>Supermercado:</strong> {{ order.supermarket.name }}</p>
+            <p><strong>Atendimento:</strong> {{ order.get_fulfillment_method_display }}</p>
+            {% if order.fulfillment_method == "delivery" and order.delivery_address %}
+                <p><strong>Endereco de entrega:</strong> {{ order.delivery_address }}</p>
+            {% endif %}
             <p><strong>Status atual:</strong> {{ order.get_status_display }}</p>
-            <p><strong>Total final:</strong> R$ {{ order.total_amount }}</p>
+            <p><strong>Total dos produtos:</strong> R$ {{ order.products_total }}</p>
+            <p><strong>Taxa de entrega:</strong> R$ {{ order.delivery_fee }}</p>
+            <p><strong>Total final:</strong> R$ {{ order.final_total }}</p>
         </div>
 
         {% if has_valid_customer_phone %}

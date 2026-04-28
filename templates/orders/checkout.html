@@ -28,9 +28,21 @@
                     {% endfor %}
                 </div>
                 <div class="order-total">
-                    <span>Total estimado</span>
+                    <span>Total dos produtos</span>
                     <strong>R$ {{ preview.total }}</strong>
                 </div>
+                <div class="order-total">
+                    <span>Taxa de entrega estimada</span>
+                    <strong>R$ {{ estimated_delivery_fee }}</strong>
+                </div>
+                <div class="order-total final-total">
+                    <span>Total final estimado</span>
+                    <strong>R$ {{ estimated_final_total }}</strong>
+                </div>
+
+                {% if supermarket.delivery_notes %}
+                    <p class="muted">{{ supermarket.delivery_notes }}</p>
+                {% endif %}
 
                 {% if preview.missing_items %}
                     <div class="missing-list">

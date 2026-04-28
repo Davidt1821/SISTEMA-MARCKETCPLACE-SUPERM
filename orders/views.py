@@ -9,7 +9,7 @@ from supermarkets.models import Supermarket
 
 from .forms import CheckoutForm
 from .models import Order
-from .services import build_order_preview, create_order_from_preview
+from .services import build_order_preview, calculate_delivery_fee, create_order_from_preview
 
 
 def checkout(request, supermarket_id):
@@ -24,7 +24,14 @@ def checkout(request, supermarket_id):
         messages.warning(request, 'Este supermercado nao possui produtos disponiveis da sua lista.')
         return redirect('shopping-list')
 
-    form = CheckoutForm(request.POST or None)
+    form = CheckoutForm(request.POST or None, supermarket=supermarket, products_total=preview['total'])
+    selected_fulfillment = (
+        request.POST.get('fulfillment_method')
+        or form.fields['fulfillment_method'].choices[0][0]
+    )
+    estimated_delivery_fee = calculate_delivery_fee(supermarket, preview['total'], selected_fulfillment)
+    estimated_final_total = preview['total'] + estimated_delivery_fee
+
     if request.method == 'POST' and form.is_valid():
         order = create_order_from_preview(supermarket, form.cleaned_data, preview)
         request.session[SESSION_KEY] = {}
@@ -36,6 +43,8 @@ def checkout(request, supermarket_id):
         'form': form,
         'supermarket': supermarket,
         'preview': preview,
+        'estimated_delivery_fee': estimated_delivery_fee,
+        'estimated_final_total': estimated_final_total,
     })
 
 
@@ -71,6 +80,10 @@ def build_whatsapp_url(order):
     ]
     for item in order.items.all():
         lines.append(f'- {item.product_name_snapshot} x{item.quantity}: R$ {item.subtotal}')
-    lines.append(f'Total estimado: R$ {order.total_amount}')
+    lines.append(f'Tipo de atendimento: {order.get_fulfillment_method_display()}')
+    if order.fulfillment_method == Order.FULFILLMENT_DELIVERY and order.delivery_address:
+        lines.append(f'Endereco: {order.delivery_address}')
+    lines.append(f'Taxa de entrega: R$ {order.delivery_fee}')
+    lines.append(f'Total estimado: R$ {order.final_total}')
 
     return f'https://wa.me/55{phone_digits}?text={quote(chr(10).join(lines))}'

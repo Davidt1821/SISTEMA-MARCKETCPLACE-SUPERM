@@ -293,12 +293,17 @@ def build_customer_whatsapp_url(order, summary=False):
     if summary:
         lines = [
             f'Pedido/orcamento {order.code}',
+            f'Cliente: {order.customer_name}',
             f'Supermercado: {order.supermarket.name}',
+            f'Tipo de atendimento: {order.get_fulfillment_method_display()}',
             'Itens:',
         ]
+        if order.fulfillment_method == Order.FULFILLMENT_DELIVERY and order.delivery_address:
+            lines.append(f'Endereco: {order.delivery_address}')
         for item in order.items.all():
             lines.append(f'- {item.product_name_snapshot} x{item.quantity}: R$ {item.subtotal}')
-        lines.append(f'Total estimado: R$ {order.total_amount}')
+        lines.append(f'Taxa de entrega: R$ {order.delivery_fee}')
+        lines.append(f'Total estimado: R$ {order.final_total}')
         lines.append(f'Status: {order.get_status_display()}')
     else:
         lines = [

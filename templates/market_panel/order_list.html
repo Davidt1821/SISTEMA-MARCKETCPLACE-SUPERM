@@ -52,6 +52,7 @@
                         <th>Codigo</th>
                         <th>Cliente</th>
                         <th>Telefone</th>
+                        <th>Atendimento</th>
                         <th>Total</th>
                         <th>Status</th>
                         <th>Data</th>
@@ -64,7 +65,8 @@
                             <td>{{ order.code }}</td>
                             <td>{{ order.customer_name }}</td>
                             <td>{{ order.customer_phone }}</td>
-                            <td>R$ {{ order.total_amount }}</td>
+                            <td>{{ order.get_fulfillment_method_display }}</td>
+                            <td>R$ {{ order.final_total }}</td>
                             <td>{{ order.get_status_display }}</td>
                             <td>{{ order.created_at }}</td>
                             <td><a class="table-action" href="{% url 'market-order-detail' order.id %}">Visualizar</a></td>

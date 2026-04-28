@@ -12,6 +12,16 @@ def generate_order_code():
 
 
 class Order(models.Model):
+    FULFILLMENT_PICKUP = 'pickup'
+    FULFILLMENT_DELIVERY = 'delivery'
+    FULFILLMENT_ARRANGE = 'arrange'
+
+    FULFILLMENT_CHOICES = [
+        (FULFILLMENT_PICKUP, 'Retirada no supermercado'),
+        (FULFILLMENT_DELIVERY, 'Entrega em casa'),
+        (FULFILLMENT_ARRANGE, 'Combinar com o mercado'),
+    ]
+
     STATUS_PENDING = 'pending'
     STATUS_REVIEWING = 'reviewing'
     STATUS_ACCEPTED = 'accepted'
@@ -38,6 +48,21 @@ class Order(models.Model):
     customer_address = models.CharField('endereco do cliente', max_length=255, blank=True)
     notes = models.TextField('observacoes', blank=True)
     internal_notes = models.TextField('observacoes internas', blank=True)
+    fulfillment_method = models.CharField(
+        'tipo de atendimento',
+        max_length=20,
+        choices=FULFILLMENT_CHOICES,
+        default=FULFILLMENT_ARRANGE,
+    )
+    delivery_street = models.CharField('rua', max_length=150, blank=True)
+    delivery_number = models.CharField('numero', max_length=30, blank=True)
+    delivery_district = models.CharField('bairro', max_length=100, blank=True)
+    delivery_city = models.CharField('cidade', max_length=100, blank=True)
+    delivery_complement = models.CharField('complemento', max_length=150, blank=True)
+    delivery_reference = models.CharField('referencia', max_length=150, blank=True)
+    products_total = models.DecimalField('total dos produtos', max_digits=10, decimal_places=2, default=0)
+    delivery_fee = models.DecimalField('taxa de entrega', max_digits=10, decimal_places=2, default=0)
+    final_total = models.DecimalField('total final', max_digits=10, decimal_places=2, default=0)
     status = models.CharField('status', max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
     total_amount = models.DecimalField('valor total', max_digits=10, decimal_places=2, default=0)
     created_at = models.DateTimeField('criado em', auto_now_add=True)
@@ -50,6 +75,18 @@ class Order(models.Model):
 
     def __str__(self):
         return f'Pedido {self.code} - {self.supermarket}'
+
+    @property
+    def delivery_address(self):
+        parts = [
+            self.delivery_street,
+            self.delivery_number,
+            self.delivery_district,
+            self.delivery_city,
+            self.delivery_complement,
+            self.delivery_reference,
+        ]
+        return ', '.join(part for part in parts if part)
 
 
 class OrderItem(models.Model):

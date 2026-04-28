@@ -19,10 +19,21 @@ class OrderStatusHistoryInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['code', 'supermarket', 'customer_name', 'customer_phone', 'total_amount', 'status', 'created_at']
-    list_filter = ['status', 'supermarket', 'created_at']
+    list_display = [
+        'code',
+        'supermarket',
+        'customer_name',
+        'customer_phone',
+        'fulfillment_method',
+        'delivery_fee',
+        'products_total',
+        'final_total',
+        'status',
+        'created_at',
+    ]
+    list_filter = ['status', 'fulfillment_method', 'supermarket', 'created_at']
     search_fields = ['code', 'customer_name', 'customer_phone', 'supermarket__name']
-    readonly_fields = ['code', 'total_amount', 'created_at', 'updated_at']
+    readonly_fields = ['code', 'total_amount', 'products_total', 'delivery_fee', 'final_total', 'created_at', 'updated_at']
     inlines = [OrderItemInline, OrderStatusHistoryInline]
 
 
