@@ -1,0 +1,65 @@
+{% extends "public_pages/base.html" %}
+
+{% block title %}Finalizar orcamento{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <h1>Finalizar orcamento</h1>
+                <span class="muted">{{ supermarket.name }}{% if supermarket.city %} - {{ supermarket.city }}{% endif %}</span>
+            </div>
+            <a class="link-button" href="{% url 'shopping-list' %}">Voltar para lista</a>
+        </div>
+
+        <div class="checkout-grid">
+            <section class="compare-card">
+                <h2>Itens disponiveis</h2>
+                <div class="mini-table">
+                    {% for item in preview.available_items %}
+                        <div>
+                            <span>{{ item.product.name }} x{{ item.quantity }}</span>
+                            <strong>R$ {{ item.subtotal }}</strong>
+                            {% if item.has_active_promotion %}
+                                <small>Promocao aplicada</small>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="order-total">
+                    <span>Total estimado</span>
+                    <strong>R$ {{ preview.total }}</strong>
+                </div>
+
+                {% if preview.missing_items %}
+                    <div class="missing-list">
+                        <strong>Itens indisponiveis neste supermercado</strong>
+                        <ul>
+                            {% for item in preview.missing_items %}
+                                <li>{{ item.product.name }} x{{ item.quantity }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </section>
+
+            <section class="compare-card form-card">
+                <h2>Dados do cliente</h2>
+                <form method="post" class="panel-form">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    {% for field in form %}
+                        <label>
+                            <span>{{ field.label }}</span>
+                            {{ field }}
+                            {{ field.errors }}
+                        </label>
+                    {% endfor %}
+                    <button type="submit">Enviar pedido/orcamento</button>
+                </form>
+            </section>
+        </div>
+    </div>
+</section>
+{% endblock %}

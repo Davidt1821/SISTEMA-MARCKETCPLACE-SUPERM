@@ -88,6 +88,9 @@
                                     <div>
                                         <p class="muted">{{ comparison.supermarket.city }}</p>
                                         <h2>{{ comparison.supermarket.name }}</h2>
+                                        <a class="link-button checkout-button" href="{% url 'shopping-list-checkout' comparison.supermarket.id %}">
+                                            Finalizar orcamento
+                                        </a>
                                     </div>
                                     <div class="lowest-badge">
                                         {% if comparison.is_best_total %}

@@ -40,6 +40,7 @@ router.register('promotions', PromotionViewSet, basename='promotion')
 
 urlpatterns = [
     path('', include('public_pages.urls')),
+    path('', include('orders.urls')),
     path('mercado/', include('accounts.urls')),
     path(
         'admin/importar-csv/',

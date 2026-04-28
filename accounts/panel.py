@@ -8,8 +8,9 @@ from django.utils import timezone
 from prices.models import ProductPrice
 from products.services.csv_importer import CSVImportError, import_products_csv_for_supermarket
 from promotions.models import Promotion
+from orders.models import Order
 
-from .forms import PriceForm, PromotionForm, SupermarketCSVImportForm
+from .forms import OrderStatusForm, PriceForm, PromotionForm, SupermarketCSVImportForm
 from .models import SupermarketUser
 
 
@@ -179,3 +180,33 @@ def import_csv(request):
                 messages.success(request, 'Importacao concluida com sucesso.')
 
     return render(request, 'market_panel/import_csv.html', {'profile': profile, 'form': form, 'summary': summary})
+
+
+@login_required(login_url='market-login')
+def order_list(request):
+    profile, response = require_supermarket_profile(request)
+    if response:
+        return response
+
+    orders = Order.objects.filter(supermarket=profile.supermarket).order_by('-created_at')
+    return render(request, 'market_panel/order_list.html', {'profile': profile, 'orders': orders})
+
+
+@login_required(login_url='market-login')
+def order_detail(request, pk):
+    profile, response = require_supermarket_profile(request)
+    if response:
+        return response
+
+    order = get_object_or_404(
+        Order.objects.select_related('supermarket').prefetch_related('items'),
+        pk=pk,
+        supermarket=profile.supermarket,
+    )
+    form = OrderStatusForm(request.POST or None, instance=order)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Status do pedido atualizado.')
+        return redirect('market-order-detail', pk=order.pk)
+
+    return render(request, 'market_panel/order_detail.html', {'profile': profile, 'order': order, 'form': form})

@@ -3,6 +3,7 @@ from django import forms
 from prices.models import ProductPrice
 from products.models import Product
 from promotions.models import Promotion
+from orders.models import Order
 
 
 class PriceForm(forms.ModelForm):
@@ -51,3 +52,9 @@ class SupermarketCSVImportForm(forms.Form):
         if not file.name.lower().endswith('.csv'):
             raise forms.ValidationError('Envie um arquivo com extensao .csv.')
         return file
+
+
+class OrderStatusForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = ['status']

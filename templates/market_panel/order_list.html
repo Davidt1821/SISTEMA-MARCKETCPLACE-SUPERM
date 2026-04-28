@@ -1,0 +1,45 @@
+{% extends "market_panel/base.html" %}
+
+{% block title %}Pedidos recebidos{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <h1>Pedidos recebidos</h1>
+    <a class="link-button" href="{% url 'home' %}">Site publico</a>
+</div>
+
+<section class="compare-card">
+    {% if orders %}
+        <div class="price-table-wrapper">
+            <table class="price-table">
+                <thead>
+                    <tr>
+                        <th>Codigo</th>
+                        <th>Cliente</th>
+                        <th>Telefone</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Data</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>{{ order.code }}</td>
+                            <td>{{ order.customer_name }}</td>
+                            <td>{{ order.customer_phone }}</td>
+                            <td>R$ {{ order.total_amount }}</td>
+                            <td>{{ order.get_status_display }}</td>
+                            <td>{{ order.created_at }}</td>
+                            <td><a class="table-action" href="{% url 'market-order-detail' order.id %}">Visualizar</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="empty-state">Nenhum pedido recebido ainda.</p>
+    {% endif %}
+</section>
+{% endblock %}

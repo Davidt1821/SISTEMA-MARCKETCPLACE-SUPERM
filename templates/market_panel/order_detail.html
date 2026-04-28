@@ -1,0 +1,67 @@
+{% extends "market_panel/base.html" %}
+
+{% block title %}Pedido {{ order.code }}{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <div>
+        <p class="eyebrow">Pedido recebido</p>
+        <h1>{{ order.code }}</h1>
+        <span class="muted">{{ order.created_at }}</span>
+    </div>
+    <a class="link-button" href="{% url 'market-orders' %}">Voltar para pedidos</a>
+</div>
+
+<div class="checkout-grid">
+    <section class="compare-card">
+        <h2>Cliente</h2>
+        <div class="detail-list">
+            <p><strong>Nome:</strong> {{ order.customer_name }}</p>
+            <p><strong>Telefone:</strong> {{ order.customer_phone }}</p>
+            {% if order.customer_address %}<p><strong>Endereco:</strong> {{ order.customer_address }}</p>{% endif %}
+            {% if order.notes %}<p><strong>Observacoes:</strong> {{ order.notes }}</p>{% endif %}
+            <p><strong>Total:</strong> R$ {{ order.total_amount }}</p>
+        </div>
+
+        <form method="post" class="panel-form status-form">
+            {% csrf_token %}
+            {% for field in form %}
+                <label>
+                    <span>{{ field.label }}</span>
+                    {{ field }}
+                    {{ field.errors }}
+                </label>
+            {% endfor %}
+            <button type="submit">Atualizar status</button>
+        </form>
+    </section>
+
+    <section class="compare-card">
+        <h2>Itens</h2>
+        <div class="price-table-wrapper">
+            <table class="price-table">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Marca</th>
+                        <th>Qtd.</th>
+                        <th>Unitario</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                        <tr>
+                            <td>{{ item.product_name_snapshot }}</td>
+                            <td>{{ item.product_brand_snapshot|default:"-" }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>R$ {{ item.unit_price }}</td>
+                            <td>R$ {{ item.subtotal }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

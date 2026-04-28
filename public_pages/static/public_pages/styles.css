@@ -526,6 +526,44 @@ h1 {
     margin-bottom: 14px;
 }
 
+.checkout-button {
+    margin-top: 12px;
+}
+
+.checkout-grid {
+    display: grid;
+    grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.order-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 18px;
+    padding: 16px;
+    border-radius: 8px;
+    background: #edf9f5;
+    border: 1px solid #c9e9de;
+}
+
+.order-total strong {
+    font-size: 1.5rem;
+    color: var(--primary-dark);
+}
+
+.detail-list {
+    display: grid;
+    gap: 8px;
+    margin: 14px 0 18px;
+}
+
+.detail-list p {
+    margin: 0;
+}
+
 .mini-table {
     display: grid;
     gap: 10px;
@@ -600,6 +638,10 @@ h1 {
     .list-actions {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    .checkout-grid {
+        grid-template-columns: 1fr;
     }
 
     .mini-table div {
