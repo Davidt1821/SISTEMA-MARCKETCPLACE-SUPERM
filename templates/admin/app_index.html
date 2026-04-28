@@ -1,0 +1,14 @@
+{% extends "admin/app_index.html" %}
+
+{% block content %}
+<div class="module" style="margin-bottom: 20px;">
+    <h2>Importacao CSV</h2>
+    <div style="padding: 16px;">
+        <p style="margin: 0 0 12px 0;">Importe produtos, precos e promocoes em massa.</p>
+        <a href="{% url 'admin:products_product_import_csv' %}" class="button default" style="padding: 10px 14px; display: inline-block;">
+            Abrir importacao CSV
+        </a>
+    </div>
+</div>
+{{ block.super }}
+{% endblock %}

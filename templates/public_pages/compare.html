@@ -1,0 +1,80 @@
+{% extends "public_pages/base.html" %}
+
+{% block title %}Comparar precos{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <form class="search-form search-form-inline" action="{% url 'public-compare' %}" method="get">
+            <input type="search" name="q" value="{{ query }}" placeholder="Comparar produto">
+            <button type="submit">Comparar</button>
+        </form>
+
+        <div class="section-heading">
+            <h1>Comparacao de precos</h1>
+            {% if query %}<span class="muted">Busca por "{{ query }}"</span>{% endif %}
+        </div>
+
+        {% if products %}
+            {% for product in products %}
+                <section class="compare-card">
+                    <div class="compare-header">
+                        <div>
+                            <p class="muted">{{ product.category.name }}</p>
+                            <h2>{{ product.name }}</h2>
+                            <p>{{ product.brand }}{% if product.barcode %} • Codigo: {{ product.barcode }}{% endif %}</p>
+                        </div>
+                        <div class="lowest-badge">
+                            <span>Menor preco</span>
+                            <strong>R$ {{ product.lowest_price }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="price-table-wrapper">
+                        <table class="price-table">
+                            <thead>
+                                <tr>
+                                    <th>Supermercado</th>
+                                    <th>Preco atual</th>
+                                    <th>Preco antigo</th>
+                                    <th>Promocao</th>
+                                    <th>Disponibilidade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in product.comparison_prices %}
+                                    <tr class="{% if item.is_best_price %}best-price{% endif %}">
+                                        <td>{{ item.supermarket.name }}<br><span class="muted">{{ item.supermarket.city }}</span></td>
+                                        <td><strong>R$ {{ item.current_price }}</strong></td>
+                                        <td>{% if item.old_price %}R$ {{ item.old_price }}{% else %}-{% endif %}</td>
+                                        <td>
+                                            {% if item.has_active_promotion %}
+                                                <span class="promo-badge">R$ {{ item.promotion_price }}</span>
+                                                <span class="muted">{{ item.promotion_start }} ate {{ item.promotion_end }}</span>
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if item.available %}
+                                                <span class="status available">Disponivel</span>
+                                            {% else %}
+                                                <span class="status unavailable">Indisponivel</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            {% endfor %}
+        {% else %}
+            <div class="empty-panel">
+                <h2>Nenhum resultado para comparacao.</h2>
+                <p>Use nome, marca, categoria ou codigo de barras.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

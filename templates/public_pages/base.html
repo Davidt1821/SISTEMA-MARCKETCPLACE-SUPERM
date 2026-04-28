@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Mercado da Cidade{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'public_pages/styles.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="brand" href="{% url 'home' %}">Mercado da Cidade</a>
+            <nav class="site-nav">
+                <a href="{% url 'home' %}">Inicio</a>
+                <a href="{% url 'public-promotions' %}">Promocoes</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="site-main">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

@@ -1,0 +1,55 @@
+{% extends "public_pages/base.html" %}
+
+{% block title %}Buscar produtos{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <form class="search-form search-form-inline" action="{% url 'public-search' %}" method="get">
+            <input type="search" name="q" value="{{ query }}" placeholder="Buscar produto">
+            <button type="submit">Pesquisar</button>
+        </form>
+
+        <div class="section-heading">
+            <h1>Resultado da busca</h1>
+            {% if query %}<span class="muted">Busca por "{{ query }}"</span>{% endif %}
+        </div>
+
+        {% if products %}
+            <div class="product-grid">
+                {% for product in products %}
+                    <article class="product-card">
+                        <div class="product-image">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <span>Sem imagem</span>
+                            {% endif %}
+                        </div>
+                        <div class="product-body">
+                            <p class="muted">{{ product.category.name }}</p>
+                            <h2>{{ product.name }}</h2>
+                            <p>{{ product.brand }}</p>
+                            <div class="price-line">
+                                <strong>Menor preco: R$ {{ product.lowest_price }}</strong>
+                                <span>{{ product.lowest_price_supermarket }}{% if product.lowest_price_city %} • {{ product.lowest_price_city }}{% endif %}</span>
+                            </div>
+                            {% if not product.has_available_offer %}
+                                <span class="status unavailable">Indisponivel no momento</span>
+                            {% endif %}
+                            <a class="link-button" href="{% url 'public-compare' %}?q={% if product.barcode %}{{ product.barcode|urlencode }}{% else %}{{ product.name|urlencode }}{% endif %}">
+                                Comparar precos
+                            </a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-panel">
+                <h2>Nenhum produto encontrado.</h2>
+                <p>Tente buscar por nome, marca, categoria ou codigo de barras.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

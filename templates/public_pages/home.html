@@ -1,0 +1,55 @@
+{% extends "public_pages/base.html" %}
+
+{% block title %}Mercado da Cidade{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container hero-grid">
+        <div>
+            <p class="eyebrow">Marketplace de supermercados</p>
+            <h1>Pesquise produtos e compare precos entre supermercados.</h1>
+            <form class="search-form" action="{% url 'public-search' %}" method="get">
+                <input type="search" name="q" placeholder="Ex.: arroz, feijao, cafe" required>
+                <button type="submit">Pesquisar</button>
+            </form>
+        </div>
+        <div class="hero-panel">
+            <h2>Promocoes em destaque</h2>
+            {% if featured_promotions %}
+                <ul class="promo-list compact">
+                    {% for promotion in featured_promotions %}
+                        <li>
+                            <strong>{{ promotion.product.name }}</strong>
+                            <span>{{ promotion.supermarket.name }}</span>
+                            <span>R$ {{ promotion.promotional_price }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="empty-state">Nenhuma promocao ativa no momento.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <h2>Categorias principais</h2>
+            <a href="{% url 'public-promotions' %}">Ver promocoes</a>
+        </div>
+        {% if categories %}
+            <div class="category-grid">
+                {% for category in categories %}
+                    <a class="category-card" href="{% url 'public-search' %}?category={{ category.name|urlencode }}">
+                        <strong>{{ category.name }}</strong>
+                        <span>{{ category.product_count }} produtos</span>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="empty-state">Nenhuma categoria disponivel.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

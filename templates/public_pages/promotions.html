@@ -1,0 +1,36 @@
+{% extends "public_pages/base.html" %}
+
+{% block title %}Promocoes ativas{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <h1>Promocoes ativas</h1>
+            <span class="muted">Somente promocoes dentro do periodo valido</span>
+        </div>
+
+        {% if promotions %}
+            <div class="promotion-grid">
+                {% for promotion in promotions %}
+                    <article class="promotion-card">
+                        <p class="muted">{{ promotion.product.category.name }}</p>
+                        <h2>{{ promotion.product.name }}</h2>
+                        <p>{{ promotion.supermarket.name }} • {{ promotion.supermarket.city }}</p>
+                        <div class="promotion-prices">
+                            <span>Preco normal: <strong>{% if promotion.regular_price %}R$ {{ promotion.regular_price }}{% else %}-{% endif %}</strong></span>
+                            <span>Promocao: <strong>R$ {{ promotion.promotional_price }}</strong></span>
+                        </div>
+                        <p class="muted">De {{ promotion.start_date }} ate {{ promotion.end_date }}</p>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-panel">
+                <h2>Nenhuma promocao ativa.</h2>
+                <p>Volte mais tarde para conferir novas ofertas.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
