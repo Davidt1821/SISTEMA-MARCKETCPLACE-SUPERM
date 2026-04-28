@@ -1,0 +1,15 @@
+from django.urls import path
+
+from . import panel
+
+urlpatterns = [
+    path('login/', panel.supermarket_login, name='market-login'),
+    path('logout/', panel.supermarket_logout, name='market-logout'),
+    path('dashboard/', panel.dashboard, name='market-dashboard'),
+    path('precos/', panel.price_list, name='market-prices'),
+    path('precos/editar/<int:pk>/', panel.price_edit, name='market-price-edit'),
+    path('promocoes/', panel.promotion_list, name='market-promotions'),
+    path('promocoes/nova/', panel.promotion_create, name='market-promotion-create'),
+    path('promocoes/editar/<int:pk>/', panel.promotion_edit, name='market-promotion-edit'),
+    path('importar-csv/', panel.import_csv, name='market-import-csv'),
+]

@@ -20,6 +20,12 @@ REQUIRED_COLUMNS = {
     'price',
 }
 
+SUPERMARKET_REQUIRED_COLUMNS = {
+    'category_name',
+    'product_name',
+    'price',
+}
+
 PLACEHOLDER_TEXT = 'Nao informado'
 
 
@@ -100,17 +106,72 @@ def import_products_csv(file):
     return summary
 
 
+def import_products_csv_for_supermarket(file, supermarket):
+    _validate_file_extension(file.name)
+
+    try:
+        decoded_content = file.read().decode('utf-8-sig')
+    except UnicodeDecodeError as exc:
+        raise CSVImportError('O arquivo CSV deve estar em UTF-8.') from exc
+
+    reader = csv.DictReader(io.StringIO(decoded_content))
+    _validate_columns(reader.fieldnames, required_columns=SUPERMARKET_REQUIRED_COLUMNS)
+
+    summary = {
+        'created_products': 0,
+        'updated_products': 0,
+        'created_prices': 0,
+        'updated_prices': 0,
+        'created_promotions': 0,
+        'errors': [],
+    }
+
+    for line_number, row in enumerate(reader, start=2):
+        row = _normalize_row_keys(row)
+        if _is_empty_row(row):
+            continue
+
+        try:
+            parsed_row = _parse_supermarket_row(row, supermarket)
+            with transaction.atomic():
+                category = _get_or_create_category(parsed_row.category_name)
+                product, product_created, product_updated = _get_or_create_product(parsed_row, category)
+                price_created, price_updated = _create_or_update_price(parsed_row, product, supermarket)
+                promotion_created = _create_promotion_if_needed(parsed_row, product, supermarket)
+        except Exception as exc:
+            summary['errors'].append({
+                'line': line_number,
+                'message': str(exc),
+            })
+            continue
+
+        if product_created:
+            summary['created_products'] += 1
+        elif product_updated:
+            summary['updated_products'] += 1
+
+        if price_created:
+            summary['created_prices'] += 1
+        elif price_updated:
+            summary['updated_prices'] += 1
+
+        if promotion_created:
+            summary['created_promotions'] += 1
+
+    return summary
+
+
 def _validate_file_extension(file_name):
     if not file_name.lower().endswith('.csv'):
         raise CSVImportError('Envie um arquivo com extensao .csv.')
 
 
-def _validate_columns(fieldnames):
+def _validate_columns(fieldnames, required_columns=REQUIRED_COLUMNS):
     if not fieldnames:
         raise CSVImportError('O arquivo CSV esta vazio ou sem cabecalho.')
 
     normalized = {field.strip() for field in fieldnames if field}
-    missing = sorted(REQUIRED_COLUMNS - normalized)
+    missing = sorted(required_columns - normalized)
     if missing:
         raise CSVImportError(f'Colunas obrigatorias ausentes: {", ".join(missing)}.')
 
@@ -149,6 +210,41 @@ def _parse_row(row):
     return ParsedRow(
         supermarket_name=supermarket_name,
         supermarket_cnpj=_clean_value(row.get('supermarket_cnpj')),
+        category_name=category_name,
+        product_name=product_name,
+        brand=_clean_value(row.get('brand')) or '',
+        barcode=_clean_value(row.get('barcode')),
+        description=_clean_value(row.get('description')) or '',
+        price=_parse_decimal(_require_value(row, 'price'), 'price'),
+        old_price=_parse_decimal(_clean_value(row.get('old_price')), 'old_price') if _clean_value(row.get('old_price')) else None,
+        available=_parse_boolean(_clean_value(row.get('available'))),
+        promotion_price=promotion_price,
+        promotion_start=promotion_start,
+        promotion_end=promotion_end,
+    )
+
+
+def _parse_supermarket_row(row, supermarket):
+    category_name = _require_value(row, 'category_name')
+    product_name = _require_value(row, 'product_name')
+
+    promotion_price_raw = _clean_value(row.get('promotion_price'))
+    promotion_start_raw = _clean_value(row.get('promotion_start'))
+    promotion_end_raw = _clean_value(row.get('promotion_end'))
+
+    promotion_price = _parse_decimal(promotion_price_raw, 'promotion_price') if promotion_price_raw else None
+    promotion_start = _parse_date(promotion_start_raw, 'promotion_start') if promotion_start_raw else None
+    promotion_end = _parse_date(promotion_end_raw, 'promotion_end') if promotion_end_raw else None
+
+    if promotion_price is not None and (promotion_start is None or promotion_end is None):
+        raise ValueError('promotion_start e promotion_end sao obrigatorios quando promotion_price for informado.')
+
+    if promotion_start and promotion_end and promotion_end < promotion_start:
+        raise ValueError('promotion_end deve ser maior ou igual a promotion_start.')
+
+    return ParsedRow(
+        supermarket_name=supermarket.name,
+        supermarket_cnpj=supermarket.cnpj,
         category_name=category_name,
         product_name=product_name,
         brand=_clean_value(row.get('brand')) or '',

@@ -1,0 +1,67 @@
+{% extends "market_panel/base.html" %}
+
+{% block title %}Dashboard do supermercado{% endblock %}
+
+{% block content %}
+<section class="panel-heading">
+    <div>
+        <p class="eyebrow">Supermercado logado</p>
+        <h1>{{ supermarket.name }}</h1>
+        <p class="muted">{{ supermarket.city }}{% if profile.role %} - {{ profile.get_role_display }}{% endif %}</p>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <span>Produtos com preco</span>
+        <strong>{{ total_products }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Precos disponiveis</span>
+        <strong>{{ total_available_prices }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>Promocoes ativas</span>
+        <strong>{{ total_active_promotions }}</strong>
+    </article>
+</section>
+
+<section class="quick-grid">
+    <a class="link-button" href="{% url 'market-prices' %}">Ver precos</a>
+    <a class="link-button" href="{% url 'market-import-csv' %}">Importar CSV</a>
+    <a class="link-button" href="{% url 'market-promotion-create' %}">Criar promocao</a>
+    <a class="link-button secondary-link" href="{% url 'home' %}">Voltar ao site publico</a>
+</section>
+
+<section class="compare-card">
+    <div class="section-heading">
+        <h2>Ultimas atualizacoes de precos</h2>
+    </div>
+    {% if latest_prices %}
+        <div class="price-table-wrapper">
+            <table class="price-table">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Categoria</th>
+                        <th>Preco</th>
+                        <th>Atualizado em</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for price in latest_prices %}
+                        <tr>
+                            <td>{{ price.product.name }}</td>
+                            <td>{{ price.product.category.name }}</td>
+                            <td>R$ {{ price.price }}</td>
+                            <td>{{ price.updated_at }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="empty-state">Nenhum preco cadastrado ainda.</p>
+    {% endif %}
+</section>
+{% endblock %}

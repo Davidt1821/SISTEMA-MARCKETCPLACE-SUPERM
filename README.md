@@ -178,3 +178,67 @@ Paginas:
 - `/buscar/?q=arroz` mostra produtos encontrados com menor preco e link para comparacao.
 - `/comparar/?q=arroz` mostra supermercados, preco atual, preco antigo, promocao valida e disponibilidade.
 - `/promocoes/` lista promocoes ativas dentro do periodo valido.
+
+## Painel do supermercado
+
+Rotas privadas disponiveis:
+
+```text
+GET /mercado/login/
+GET /mercado/logout/
+GET /mercado/dashboard/
+GET /mercado/precos/
+GET /mercado/precos/editar/1/
+GET /mercado/promocoes/
+GET /mercado/promocoes/nova/
+GET /mercado/promocoes/editar/1/
+GET /mercado/importar-csv/
+```
+
+Como criar acesso para um supermercado:
+
+1. Crie um usuario comum no Django Admin em `Usuarios`.
+2. Crie ou escolha um supermercado em `Supermercados`.
+3. No Django Admin, acesse `Usuarios de supermercados`.
+4. Crie um vinculo entre o usuario e o supermercado.
+5. Defina a funcao: `owner`, `manager` ou `staff`.
+6. Marque o vinculo como ativo.
+
+O usuario vinculado acessa:
+
+```text
+http://127.0.0.1:8000/mercado/login/
+```
+
+Regras do painel:
+
+- O usuario logado ve apenas dados do supermercado vinculado.
+- Edicao de precos permite alterar somente preco atual, preco antigo e disponibilidade.
+- Promocoes so podem ser criadas para produtos que ja possuem preco no supermercado logado.
+- A importacao CSV usa automaticamente o supermercado vinculado ao usuario.
+- O Django Admin continua com acesso geral para administradores.
+
+### CSV do painel do supermercado
+
+Cabecalho esperado:
+
+```text
+category_name,product_name,brand,barcode,description,price,old_price,available,promotion_price,promotion_start,promotion_end
+```
+
+Exemplo:
+
+```csv
+Alimentos,Arroz Tipo 1 5kg,Tio Joao,7891000100103,Arroz branco tipo 1 pacote 5kg,24.90,27.90,true,,,
+Alimentos,Feijao Carioca 1kg,Camil,7896006711115,Feijao carioca pacote 1kg,8.99,10.50,true,7.99,2026-04-27,2026-05-05
+```
+
+A importacao pelo painel:
+
+- cria categoria se nao existir;
+- busca produto por codigo de barras quando informado;
+- se nao houver codigo de barras, busca por nome e marca;
+- cria produto se nao existir;
+- cria ou atualiza `ProductPrice` para o supermercado logado;
+- cria promocao quando `promotion_price`, `promotion_start` e `promotion_end` forem informados;
+- continua processando as proximas linhas quando uma linha tem erro.

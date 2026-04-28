@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Entrar no painel</title>
+    <link rel="stylesheet" href="{% static 'public_pages/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'accounts/panel.css' %}">
+</head>
+<body>
+    <main class="login-page">
+        <section class="login-card">
+            <p class="eyebrow">Area do supermercado</p>
+            <h1>Entrar no painel</h1>
+            <form method="post" class="panel-form">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                <label>
+                    <span>Usuario</span>
+                    {{ form.username }}
+                    {{ form.username.errors }}
+                </label>
+                <label>
+                    <span>Senha</span>
+                    {{ form.password }}
+                    {{ form.password.errors }}
+                </label>
+                <button type="submit">Entrar</button>
+            </form>
+            <a class="muted" href="{% url 'home' %}">Voltar ao site publico</a>
+        </section>
+    </main>
+</body>
+</html>

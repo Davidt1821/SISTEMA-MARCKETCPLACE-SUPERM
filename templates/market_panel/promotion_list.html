@@ -1,0 +1,33 @@
+{% extends "market_panel/base.html" %}
+
+{% block title %}Promocoes do supermercado{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <h1>Promocoes</h1>
+    <a class="link-button" href="{% url 'market-promotion-create' %}">Nova promocao</a>
+</div>
+
+{% if promotions %}
+    <div class="promotion-grid">
+        {% for promotion in promotions %}
+            <article class="promotion-card">
+                <p class="muted">{{ promotion.product.category.name }}</p>
+                <h2>{{ promotion.product.name }}</h2>
+                <p>{{ promotion.product.brand|default:"Sem marca" }}</p>
+                <div class="promotion-prices">
+                    <span>Promocao: <strong>R$ {{ promotion.promotional_price }}</strong></span>
+                    <span>Validade: {{ promotion.start_date }} ate {{ promotion.end_date }}</span>
+                    <span>{% if promotion.is_active %}Ativa{% else %}Inativa{% endif %}</span>
+                </div>
+                <a class="table-action" href="{% url 'market-promotion-edit' promotion.id %}">Editar</a>
+            </article>
+        {% endfor %}
+    </div>
+{% else %}
+    <section class="empty-panel">
+        <h2>Nenhuma promocao cadastrada.</h2>
+        <p>Crie uma promocao para produtos que ja possuem preco neste supermercado.</p>
+    </section>
+{% endif %}
+{% endblock %}

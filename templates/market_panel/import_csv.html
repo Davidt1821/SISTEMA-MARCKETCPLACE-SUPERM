@@ -1,0 +1,48 @@
+{% extends "market_panel/base.html" %}
+
+{% block title %}Importar CSV{% endblock %}
+
+{% block content %}
+<section class="compare-card form-card">
+    <p class="eyebrow">Importacao CSV</p>
+    <h1>Importar produtos e precos</h1>
+    <p class="muted">Os dados serao vinculados automaticamente ao supermercado {{ profile.supermarket.name }}.</p>
+
+    <form method="post" enctype="multipart/form-data" class="panel-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <label>
+            <span>Arquivo CSV</span>
+            {{ form.file }}
+            {{ form.file.errors }}
+        </label>
+        <button type="submit">Importar CSV</button>
+    </form>
+</section>
+
+<section class="compare-card">
+    <h2>Formato aceito</h2>
+    <pre class="csv-example">category_name,product_name,brand,barcode,description,price,old_price,available,promotion_price,promotion_start,promotion_end</pre>
+</section>
+
+{% if summary %}
+    <section class="compare-card">
+        <h2>Resumo da importacao</h2>
+        <div class="stats-grid compact-stats">
+            <article class="stat-card"><span>Produtos criados</span><strong>{{ summary.created_products }}</strong></article>
+            <article class="stat-card"><span>Produtos atualizados</span><strong>{{ summary.updated_products }}</strong></article>
+            <article class="stat-card"><span>Precos criados</span><strong>{{ summary.created_prices }}</strong></article>
+            <article class="stat-card"><span>Precos atualizados</span><strong>{{ summary.updated_prices }}</strong></article>
+            <article class="stat-card"><span>Promocoes criadas</span><strong>{{ summary.created_promotions }}</strong></article>
+        </div>
+        {% if summary.errors %}
+            <h3>Erros por linha</h3>
+            <ul class="error-list">
+                {% for error in summary.errors %}
+                    <li>Linha {{ error.line }}: {{ error.message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </section>
+{% endif %}
+{% endblock %}

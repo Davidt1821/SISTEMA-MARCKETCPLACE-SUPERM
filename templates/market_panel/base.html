@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Painel do Supermercado{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'public_pages/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'accounts/panel.css' %}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a class="brand" href="{% url 'market-dashboard' %}">Painel do Supermercado</a>
+            <nav class="site-nav">
+                <a href="{% url 'market-dashboard' %}">Dashboard</a>
+                <a href="{% url 'market-prices' %}">Precos</a>
+                <a href="{% url 'market-promotions' %}">Promocoes</a>
+                <a href="{% url 'home' %}">Site publico</a>
+                <a href="{% url 'market-logout' %}">Sair</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="site-main">
+        <div class="container panel-container">
+            {% if messages %}
+                <div class="message-list">
+                    {% for message in messages %}
+                        <p class="message {{ message.tags }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+</body>
+</html>

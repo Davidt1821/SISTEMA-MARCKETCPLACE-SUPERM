@@ -1,0 +1,27 @@
+{% extends "market_panel/base.html" %}
+
+{% block title %}Editar preco{% endblock %}
+
+{% block content %}
+<section class="compare-card form-card">
+    <p class="eyebrow">Editar preco</p>
+    <h1>{{ price.product.name }}</h1>
+    <p class="muted">{{ price.product.brand|default:"Sem marca" }} - {{ price.product.category.name }}</p>
+
+    <form method="post" class="panel-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <label>
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {{ field.errors }}
+            </label>
+        {% endfor %}
+        <div class="form-actions">
+            <button type="submit">Salvar preco</button>
+            <a class="table-action" href="{% url 'market-prices' %}">Cancelar</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

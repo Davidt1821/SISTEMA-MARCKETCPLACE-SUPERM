@@ -1,0 +1,47 @@
+{% extends "market_panel/base.html" %}
+
+{% block title %}Precos do supermercado{% endblock %}
+
+{% block content %}
+<div class="section-heading">
+    <h1>Precos</h1>
+    <a class="link-button" href="{% url 'market-import-csv' %}">Importar CSV</a>
+</div>
+
+<section class="compare-card">
+    {% if prices %}
+        <div class="price-table-wrapper">
+            <table class="price-table">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Marca</th>
+                        <th>Categoria</th>
+                        <th>Preco atual</th>
+                        <th>Preco antigo</th>
+                        <th>Disponivel</th>
+                        <th>Atualizado</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for price in prices %}
+                        <tr>
+                            <td>{{ price.product.name }}</td>
+                            <td>{{ price.product.brand|default:"-" }}</td>
+                            <td>{{ price.product.category.name }}</td>
+                            <td>R$ {{ price.price }}</td>
+                            <td>{% if price.old_price %}R$ {{ price.old_price }}{% else %}-{% endif %}</td>
+                            <td>{% if price.available %}<span class="status available">Sim</span>{% else %}<span class="status unavailable">Nao</span>{% endif %}</td>
+                            <td>{{ price.updated_at }}</td>
+                            <td><a class="table-action" href="{% url 'market-price-edit' price.id %}">Editar</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="empty-state">Nenhum preco cadastrado para este supermercado.</p>
+    {% endif %}
+</section>
+{% endblock %}
