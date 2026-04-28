@@ -1,0 +1,146 @@
+{% extends "public_pages/base.html" %}
+
+{% block title %}Lista de compras{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="section-heading">
+            <div>
+                <h1>Lista de compras</h1>
+                <span class="muted">Compare o total estimado entre supermercados.</span>
+            </div>
+            <div class="list-actions">
+                <a class="link-button" href="{% url 'public-search' %}">Continuar pesquisando</a>
+                {% if items %}
+                    <form method="post" action="{% url 'shopping-list-clear' %}">
+                        {% csrf_token %}
+                        <button class="danger-button" type="submit">Limpar lista</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if items %}
+            <section class="compare-card">
+                <h2>Produtos adicionados</h2>
+                <div class="price-table-wrapper">
+                    <table class="price-table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Marca</th>
+                                <th>Categoria</th>
+                                <th>Quantidade</th>
+                                <th>Subtotal estimado</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                                <tr>
+                                    <td>{{ item.product.name }}</td>
+                                    <td>{{ item.product.brand|default:"-" }}</td>
+                                    <td>{{ item.product.category.name }}</td>
+                                    <td>
+                                        <div class="quantity-controls">
+                                            <form method="post" action="{% url 'shopping-list-decrease' item.product.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit">-</button>
+                                            </form>
+                                            <strong>{{ item.quantity }}</strong>
+                                            <form method="post" action="{% url 'shopping-list-increase' item.product.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit">+</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if item.estimated_subtotal %}
+                                            R$ {{ item.estimated_subtotal }}
+                                            <br><span class="muted">{{ item.lowest_price.supermarket.name }}</span>
+                                        {% else %}
+                                            <span class="status unavailable">Sem preco disponivel</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{% url 'shopping-list-remove' item.product.id %}">
+                                            {% csrf_token %}
+                                            <button class="text-danger-button" type="submit">Remover</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="section">
+                <div class="section-heading">
+                    <h2>Comparacao por supermercado</h2>
+                </div>
+                {% if comparisons %}
+                    <div class="store-comparison-grid">
+                        {% for comparison in comparisons %}
+                            <article class="store-card {% if comparison.is_best_total %}best-store{% endif %}">
+                                <div class="store-card-header">
+                                    <div>
+                                        <p class="muted">{{ comparison.supermarket.city }}</p>
+                                        <h2>{{ comparison.supermarket.name }}</h2>
+                                    </div>
+                                    <div class="lowest-badge">
+                                        {% if comparison.is_best_total %}
+                                            <span>Menor total</span>
+                                        {% else %}
+                                            <span>Total</span>
+                                        {% endif %}
+                                        <strong>R$ {{ comparison.total }}</strong>
+                                    </div>
+                                </div>
+
+                                {% if not comparison.has_all_items %}
+                                    <p class="status unavailable">Nao possui todos os produtos da lista.</p>
+                                {% endif %}
+
+                                <div class="mini-table">
+                                    {% for available in comparison.available_items %}
+                                        <div>
+                                            <span>{{ available.product.name }} x{{ available.quantity }}</span>
+                                            <strong>R$ {{ available.subtotal }}</strong>
+                                            {% if available.has_active_promotion %}
+                                                <small>Promocao aplicada</small>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                {% if comparison.missing_items %}
+                                    <div class="missing-list">
+                                        <strong>Indisponiveis neste supermercado</strong>
+                                        <ul>
+                                            {% for product_name in comparison.missing_items %}
+                                                <li>{{ product_name }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-panel">
+                        <h2>Nenhum supermercado tem produtos disponiveis para esta lista.</h2>
+                    </div>
+                {% endif %}
+            </section>
+        {% else %}
+            <div class="empty-panel">
+                <h2>Sua lista esta vazia.</h2>
+                <p>Pesquise produtos e adicione itens para comparar o total entre supermercados.</p>
+                <a class="link-button" href="{% url 'public-search' %}">Pesquisar produtos</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

@@ -142,7 +142,9 @@ h1 {
 
 .search-form button,
 .link-button,
-.secondary-button {
+.secondary-button,
+.danger-button,
+.text-danger-button {
     min-height: 52px;
     border: 0;
     border-radius: 8px;
@@ -164,6 +166,35 @@ h1 {
 
 .secondary-button {
     width: fit-content;
+    background: #3d4b5c;
+}
+
+.secondary-button:hover {
+    background: #2d3948;
+}
+
+.full-button {
+    width: 100%;
+}
+
+.danger-button {
+    background: var(--danger);
+}
+
+.danger-button:hover {
+    background: #913737;
+}
+
+.text-danger-button {
+    min-height: auto;
+    padding: 0;
+    background: transparent;
+    color: var(--danger);
+    font-weight: 700;
+}
+
+.inline-action-form {
+    margin-top: 14px;
 }
 
 .search-panel {
@@ -423,6 +454,111 @@ h1 {
     text-align: center;
 }
 
+.public-messages {
+    padding-top: 18px;
+}
+
+.message-list {
+    display: grid;
+    gap: 10px;
+}
+
+.message {
+    margin: 0;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+}
+
+.message.success {
+    background: #e7f8ef;
+    border-color: #c9e9de;
+    color: var(--primary-dark);
+}
+
+.list-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.quantity-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quantity-controls button {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.store-comparison-grid {
+    display: grid;
+    gap: 18px;
+}
+
+.store-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px;
+}
+
+.best-store {
+    border-color: #92d9bf;
+    box-shadow: var(--shadow);
+}
+
+.store-card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: start;
+    margin-bottom: 14px;
+}
+
+.mini-table {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.mini-table div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+}
+
+.mini-table small {
+    grid-column: 1 / -1;
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.missing-list {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #fdeaea;
+    color: var(--danger);
+}
+
+.missing-list ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+}
+
 .search-form-inline {
     margin-bottom: 18px;
 }
@@ -455,7 +591,18 @@ h1 {
 
     .search-form button,
     .link-button,
-    .secondary-button {
+    .secondary-button,
+    .danger-button {
         width: 100%;
+    }
+
+    .store-card-header,
+    .list-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .mini-table div {
+        grid-template-columns: 1fr;
     }
 }

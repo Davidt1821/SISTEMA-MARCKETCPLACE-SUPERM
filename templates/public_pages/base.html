@@ -14,11 +14,19 @@
             <nav class="site-nav">
                 <a href="{% url 'home' %}">Inicio</a>
                 <a href="{% url 'public-promotions' %}">Promocoes</a>
+                <a href="{% url 'shopping-list' %}">Lista</a>
             </nav>
         </div>
     </header>
 
     <main class="site-main">
+        {% if messages %}
+            <div class="container message-list public-messages">
+                {% for message in messages %}
+                    <p class="message {{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
         {% block content %}{% endblock %}
     </main>
 </body>
