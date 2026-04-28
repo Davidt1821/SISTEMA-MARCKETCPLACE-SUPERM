@@ -10,16 +10,40 @@
             <span class="muted">Somente promocoes dentro do periodo valido</span>
         </div>
 
+        <form class="search-panel compact-panel" action="{% url 'public-promotions' %}" method="get">
+            <div class="filter-grid two-columns">
+                <label>
+                    <span>Categoria</span>
+                    <select name="category">
+                        <option value="">Todas</option>
+                        {% for category in filter_categories %}
+                            <option value="{{ category.name }}" {% if selected_category == category.name %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    <span>Cidade</span>
+                    <select name="city">
+                        <option value="">Todas</option>
+                        {% for city in filter_cities %}
+                            <option value="{{ city }}" {% if selected_city == city %}selected{% endif %}>{{ city }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </div>
+            <button class="secondary-button" type="submit">Filtrar promocoes</button>
+        </form>
+
         {% if promotions %}
             <div class="promotion-grid">
                 {% for promotion in promotions %}
                     <article class="promotion-card">
                         <p class="muted">{{ promotion.product.category.name }}</p>
                         <h2>{{ promotion.product.name }}</h2>
-                        <p>{{ promotion.supermarket.name }} • {{ promotion.supermarket.city }}</p>
+                        <p>{{ promotion.supermarket.name }} - {{ promotion.supermarket.city }}</p>
                         <div class="promotion-prices">
-                            <span>Preco normal: <strong>{% if promotion.regular_price %}R$ {{ promotion.regular_price }}{% else %}-{% endif %}</strong></span>
-                            <span>Promocao: <strong>R$ {{ promotion.promotional_price }}</strong></span>
+                            <span>Preco antigo: <strong>{% if promotion.regular_price %}R$ {{ promotion.regular_price }}{% else %}-{% endif %}</strong></span>
+                            <span class="deal-price">Promocao: <strong>R$ {{ promotion.promotional_price }}</strong></span>
                         </div>
                         <p class="muted">De {{ promotion.start_date }} ate {{ promotion.end_date }}</p>
                     </article>

@@ -7,7 +7,8 @@
     <div class="container hero-grid">
         <div>
             <p class="eyebrow">Marketplace de supermercados</p>
-            <h1>Pesquise produtos e compare precos entre supermercados.</h1>
+            <h1>Mercado da Cidade</h1>
+            <p class="hero-copy">Pesquise produtos, encontre ofertas e compare precos entre supermercados da sua regiao.</p>
             <form class="search-form" action="{% url 'public-search' %}" method="get">
                 <input type="search" name="q" placeholder="Ex.: arroz, feijao, cafe" required>
                 <button type="submit">Pesquisar</button>
@@ -21,7 +22,7 @@
                         <li>
                             <strong>{{ promotion.product.name }}</strong>
                             <span>{{ promotion.supermarket.name }}</span>
-                            <span>R$ {{ promotion.promotional_price }}</span>
+                            <span class="promo-price">R$ {{ promotion.promotional_price }}</span>
                         </li>
                     {% endfor %}
                 </ul>

@@ -5,9 +5,40 @@
 {% block content %}
 <section class="section">
     <div class="container">
-        <form class="search-form search-form-inline" action="{% url 'public-search' %}" method="get">
-            <input type="search" name="q" value="{{ query }}" placeholder="Buscar produto">
-            <button type="submit">Pesquisar</button>
+        <form class="search-panel" action="{% url 'public-search' %}" method="get">
+            <div class="search-form">
+                <input type="search" name="q" value="{{ query }}" placeholder="Buscar produto">
+                <button type="submit">Pesquisar</button>
+            </div>
+            <div class="filter-grid">
+                <label>
+                    <span>Categoria</span>
+                    <select name="category">
+                        <option value="">Todas</option>
+                        {% for category in filter_categories %}
+                            <option value="{{ category.name }}" {% if selected_category == category.name %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    <span>Cidade</span>
+                    <select name="city">
+                        <option value="">Todas</option>
+                        {% for city in filter_cities %}
+                            <option value="{{ city }}" {% if selected_city == city %}selected{% endif %}>{{ city }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>
+                    <span>Supermercado</span>
+                    <select name="supermarket">
+                        <option value="">Todos</option>
+                        {% for supermarket in filter_supermarkets %}
+                            <option value="{{ supermarket.name }}" {% if selected_supermarket == supermarket.name %}selected{% endif %}>{{ supermarket.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </div>
         </form>
 
         <div class="section-heading">
@@ -32,7 +63,7 @@
                             <p>{{ product.brand }}</p>
                             <div class="price-line">
                                 <strong>Menor preco: R$ {{ product.lowest_price }}</strong>
-                                <span>{{ product.lowest_price_supermarket }}{% if product.lowest_price_city %} • {{ product.lowest_price_city }}{% endif %}</span>
+                                <span>{{ product.lowest_price_supermarket }}{% if product.lowest_price_city %} - {{ product.lowest_price_city }}{% endif %}</span>
                             </div>
                             {% if not product.has_available_offer %}
                                 <span class="status unavailable">Indisponivel no momento</span>
@@ -47,7 +78,7 @@
         {% else %}
             <div class="empty-panel">
                 <h2>Nenhum produto encontrado.</h2>
-                <p>Tente buscar por nome, marca, categoria ou codigo de barras.</p>
+                <p>Tente buscar por nome, marca, categoria, cidade, supermercado ou codigo de barras.</p>
             </div>
         {% endif %}
     </div>

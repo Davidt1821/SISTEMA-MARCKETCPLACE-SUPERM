@@ -7,7 +7,9 @@
     --line: #d8e0ea;
     --primary: #0f7a5f;
     --primary-dark: #0b5e49;
+    --accent: #d9822b;
     --danger: #b24646;
+    --shadow: 0 14px 34px rgba(22, 33, 47, 0.08);
 }
 
 * {
@@ -38,7 +40,7 @@ img {
 
 .site-header {
     border-bottom: 1px solid var(--line);
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.94);
     position: sticky;
     top: 0;
     z-index: 10;
@@ -68,13 +70,14 @@ img {
 }
 
 .hero {
-    padding: 56px 0 24px;
+    padding: 64px 0 28px;
 }
 
 .hero-grid {
     display: grid;
-    grid-template-columns: 1.4fr .9fr;
+    grid-template-columns: 1.35fr .9fr;
     gap: 24px;
+    align-items: stretch;
 }
 
 .eyebrow {
@@ -85,14 +88,23 @@ img {
     font-size: .78rem;
 }
 
-h1, h2 {
+h1,
+h2 {
     margin: 0;
 }
 
 h1 {
     font-size: clamp(2rem, 4vw, 3.4rem);
     line-height: 1.05;
-    margin-bottom: 20px;
+    margin-bottom: 14px;
+}
+
+.hero-copy {
+    max-width: 640px;
+    margin: 0 0 24px;
+    color: var(--muted);
+    font-size: 1.12rem;
+    line-height: 1.6;
 }
 
 .hero-panel,
@@ -100,7 +112,8 @@ h1 {
 .empty-panel,
 .product-card,
 .promotion-card,
-.category-card {
+.category-card,
+.search-panel {
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -108,6 +121,7 @@ h1 {
 
 .hero-panel {
     padding: 22px;
+    box-shadow: var(--shadow);
 }
 
 .search-form {
@@ -127,7 +141,8 @@ h1 {
 }
 
 .search-form button,
-.link-button {
+.link-button,
+.secondary-button {
     min-height: 52px;
     border: 0;
     border-radius: 8px;
@@ -142,8 +157,58 @@ h1 {
 }
 
 .search-form button:hover,
-.link-button:hover {
+.link-button:hover,
+.secondary-button:hover {
     background: var(--primary-dark);
+}
+
+.secondary-button {
+    width: fit-content;
+}
+
+.search-panel {
+    display: grid;
+    gap: 14px;
+    padding: 18px;
+    margin-bottom: 24px;
+}
+
+.compact-panel {
+    align-items: end;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.filter-grid.two-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.filter-grid label {
+    display: grid;
+    gap: 6px;
+    color: var(--muted);
+    font-size: .9rem;
+    font-weight: 600;
+}
+
+.filter-grid select {
+    min-height: 46px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    padding: 0 12px;
+    background: #fff;
+    color: var(--text);
+    font-size: 1rem;
+}
+
+.filter-grid select:focus,
+.search-form input:focus {
+    border-color: var(--primary);
+    outline: 3px solid rgba(15, 122, 95, .12);
 }
 
 .section {
@@ -168,6 +233,20 @@ h1 {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
+}
+
+.category-card,
+.product-card,
+.promotion-card {
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+.category-card:hover,
+.product-card:hover,
+.promotion-card:hover {
+    border-color: #b8c8d8;
+    box-shadow: var(--shadow);
+    transform: translateY(-2px);
 }
 
 .category-card {
@@ -199,7 +278,8 @@ h1 {
     padding: 18px;
 }
 
-.product-body {
+.product-body,
+.promotion-card {
     display: grid;
     gap: 10px;
 }
@@ -207,6 +287,10 @@ h1 {
 .price-line {
     display: grid;
     gap: 4px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f4faf7;
+    color: var(--primary-dark);
 }
 
 .compact {
@@ -227,6 +311,11 @@ h1 {
 .compact li:last-child {
     border-bottom: 0;
     padding-bottom: 0;
+}
+
+.promo-price,
+.deal-price strong {
+    color: var(--accent);
 }
 
 .compare-card {
@@ -315,6 +404,15 @@ h1 {
     color: var(--danger);
 }
 
+.promotion-prices {
+    display: grid;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #fff8ec;
+    border: 1px solid #f1dfc1;
+}
+
 .empty-state,
 .empty-panel {
     color: var(--muted);
@@ -333,7 +431,9 @@ h1 {
     .hero-grid,
     .category-grid,
     .product-grid,
-    .promotion-grid {
+    .promotion-grid,
+    .filter-grid,
+    .filter-grid.two-columns {
         grid-template-columns: 1fr;
     }
 
@@ -351,5 +451,11 @@ h1 {
 
     .site-nav {
         justify-content: space-between;
+    }
+
+    .search-form button,
+    .link-button,
+    .secondary-button {
+        width: 100%;
     }
 }
