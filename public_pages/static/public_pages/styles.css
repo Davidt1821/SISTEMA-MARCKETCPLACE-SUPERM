@@ -564,6 +564,10 @@ h1 {
     margin: 0;
 }
 
+.receipt-link {
+    margin-top: 12px;
+}
+
 .mini-table {
     display: grid;
     gap: 10px;

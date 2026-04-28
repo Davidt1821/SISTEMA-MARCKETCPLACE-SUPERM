@@ -1,16 +1,19 @@
+from urllib.parse import quote
+
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from prices.models import ProductPrice
 from products.services.csv_importer import CSVImportError, import_products_csv_for_supermarket
 from promotions.models import Promotion
-from orders.models import Order
+from orders.models import Order, OrderStatusHistory
 
-from .forms import OrderStatusForm, PriceForm, PromotionForm, SupermarketCSVImportForm
+from .forms import OrderInternalNotesForm, OrderStatusForm, PriceForm, PromotionForm, SupermarketCSVImportForm
 from .models import SupermarketUser
 
 
@@ -189,7 +192,36 @@ def order_list(request):
         return response
 
     orders = Order.objects.filter(supermarket=profile.supermarket).order_by('-created_at')
-    return render(request, 'market_panel/order_list.html', {'profile': profile, 'orders': orders})
+    status = (request.GET.get('status') or '').strip()
+    date_from = (request.GET.get('date_from') or '').strip()
+    date_to = (request.GET.get('date_to') or '').strip()
+    query = (request.GET.get('q') or '').strip()
+
+    if status:
+        orders = orders.filter(status=status)
+    if date_from:
+        orders = orders.filter(created_at__date__gte=date_from)
+    if date_to:
+        orders = orders.filter(created_at__date__lte=date_to)
+    if query:
+        orders = orders.filter(Q(code__icontains=query) | Q(customer_name__icontains=query))
+
+    base_orders = Order.objects.filter(supermarket=profile.supermarket)
+    summary = {
+        status_value: base_orders.filter(status=status_value).count()
+        for status_value, _ in Order.STATUS_CHOICES
+    }
+    context = {
+        'profile': profile,
+        'orders': orders,
+        'summary': summary,
+        'status_choices': Order.STATUS_CHOICES,
+        'selected_status': status,
+        'date_from': date_from,
+        'date_to': date_to,
+        'query': query,
+    }
+    return render(request, 'market_panel/order_list.html', context)
 
 
 @login_required(login_url='market-login')
@@ -199,14 +231,80 @@ def order_detail(request, pk):
         return response
 
     order = get_object_or_404(
-        Order.objects.select_related('supermarket').prefetch_related('items'),
+        Order.objects.select_related('supermarket').prefetch_related('items', 'status_history__changed_by'),
         pk=pk,
         supermarket=profile.supermarket,
     )
-    form = OrderStatusForm(request.POST or None, instance=order)
-    if request.method == 'POST' and form.is_valid():
-        form.save()
-        messages.success(request, 'Status do pedido atualizado.')
-        return redirect('market-order-detail', pk=order.pk)
+    status_form = OrderStatusForm(instance=order)
+    notes_form = OrderInternalNotesForm(instance=order)
+    original_status = order.status
 
-    return render(request, 'market_panel/order_detail.html', {'profile': profile, 'order': order, 'form': form})
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'update_status':
+            status_form = OrderStatusForm(request.POST, instance=order)
+            if status_form.is_valid():
+                updated_order = status_form.save(commit=False)
+                new_status = updated_order.status
+                if original_status != new_status:
+                    updated_order.save(update_fields=['status', 'updated_at'])
+                    OrderStatusHistory.objects.create(
+                        order=order,
+                        old_status=original_status,
+                        new_status=new_status,
+                        changed_by=request.user,
+                        note=status_form.cleaned_data.get('status_note') or '',
+                    )
+                    messages.success(request, 'Status do pedido atualizado.')
+                else:
+                    messages.info(request, 'O status selecionado ja estava aplicado.')
+                return redirect('market-order-detail', pk=order.pk)
+        elif action == 'update_internal_notes':
+            notes_form = OrderInternalNotesForm(request.POST, instance=order)
+            if notes_form.is_valid():
+                notes_form.save()
+                messages.success(request, 'Observacao interna salva.')
+                return redirect('market-order-detail', pk=order.pk)
+
+    context = {
+        'profile': profile,
+        'order': order,
+        'status_form': status_form,
+        'notes_form': notes_form,
+        'call_customer_whatsapp_url': build_customer_whatsapp_url(order, summary=False),
+        'summary_whatsapp_url': build_customer_whatsapp_url(order, summary=True),
+        'has_valid_customer_phone': bool(clean_phone(order.customer_phone)),
+    }
+    return render(request, 'market_panel/order_detail.html', context)
+
+
+def clean_phone(phone):
+    digits = ''.join(character for character in (phone or '') if character.isdigit())
+    if len(digits) < 10:
+        return ''
+    return digits
+
+
+def build_customer_whatsapp_url(order, summary=False):
+    phone_digits = clean_phone(order.customer_phone)
+    if not phone_digits:
+        return None
+
+    if summary:
+        lines = [
+            f'Pedido/orcamento {order.code}',
+            f'Supermercado: {order.supermarket.name}',
+            'Itens:',
+        ]
+        for item in order.items.all():
+            lines.append(f'- {item.product_name_snapshot} x{item.quantity}: R$ {item.subtotal}')
+        lines.append(f'Total estimado: R$ {order.total_amount}')
+        lines.append(f'Status: {order.get_status_display()}')
+    else:
+        lines = [
+            f'Ola, {order.customer_name}.',
+            f'Recebemos seu pedido #{order.code} no {order.supermarket.name}.',
+            'Estamos analisando e em breve retornamos.',
+        ]
+
+    return f'https://wa.me/55{phone_digits}?text={quote(chr(10).join(lines))}'

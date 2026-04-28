@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Comprovante {{ order.code }}</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: #16212f;
+            background: #f5f7fb;
+        }
+
+        .receipt {
+            width: min(820px, calc(100% - 32px));
+            margin: 24px auto;
+            background: #fff;
+            border: 1px solid #d8e0ea;
+            border-radius: 8px;
+            padding: 28px;
+        }
+
+        .receipt-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            border-bottom: 1px solid #d8e0ea;
+            padding-bottom: 18px;
+            margin-bottom: 18px;
+        }
+
+        h1, h2, p {
+            margin-top: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #d8e0ea;
+            text-align: left;
+        }
+
+        .total {
+            text-align: right;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 18px;
+        }
+
+        .notice {
+            margin-top: 24px;
+            padding: 12px;
+            border: 1px solid #d8e0ea;
+            border-radius: 8px;
+            background: #f5f7fb;
+        }
+
+        .print-button {
+            border: 0;
+            border-radius: 8px;
+            padding: 12px 18px;
+            background: #0f7a5f;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        @media print {
+            body {
+                background: #fff;
+            }
+
+            .receipt {
+                width: 100%;
+                margin: 0;
+                border: 0;
+                padding: 0;
+            }
+
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="receipt">
+        <div class="receipt-header">
+            <div>
+                <h1>Comprovante do pedido {{ order.code }}</h1>
+                <p>Data: {{ order.created_at }}</p>
+                <p>Status: {{ order.get_status_display }}</p>
+            </div>
+            <button class="print-button" type="button" onclick="window.print()">Imprimir</button>
+        </div>
+
+        <section>
+            <h2>Cliente</h2>
+            <p>{{ order.customer_name }}</p>
+        </section>
+
+        <section>
+            <h2>Supermercado</h2>
+            <p>{{ order.supermarket.name }}</p>
+            {% if order.supermarket.phone %}<p>Telefone: {{ order.supermarket.phone }}</p>{% endif %}
+        </section>
+
+        <section>
+            <h2>Itens</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Qtd.</th>
+                        <th>Unitario</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                        <tr>
+                            <td>{{ item.product_name_snapshot }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>R$ {{ item.unit_price }}</td>
+                            <td>R$ {{ item.subtotal }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p class="total">Total: R$ {{ order.total_amount }}</p>
+        </section>
+
+        <p class="notice">Este documento nao e nota fiscal.</p>
+    </main>
+</body>
+</html>

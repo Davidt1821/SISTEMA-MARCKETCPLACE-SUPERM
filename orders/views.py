@@ -51,6 +51,14 @@ def order_detail(request, code):
     })
 
 
+def order_receipt(request, code):
+    order = get_object_or_404(
+        Order.objects.select_related('supermarket').prefetch_related('items'),
+        code=code.upper(),
+    )
+    return render(request, 'orders/order_receipt.html', {'order': order})
+
+
 def build_whatsapp_url(order):
     phone_digits = ''.join(character for character in order.supermarket.phone if character.isdigit())
     if not phone_digits:

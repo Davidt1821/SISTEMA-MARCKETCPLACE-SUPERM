@@ -8,6 +8,41 @@
     <a class="link-button" href="{% url 'home' %}">Site publico</a>
 </div>
 
+<section class="stats-grid order-stats">
+    <article class="stat-card"><span>Pendentes</span><strong>{{ summary.pending }}</strong></article>
+    <article class="stat-card"><span>Em analise</span><strong>{{ summary.reviewing }}</strong></article>
+    <article class="stat-card"><span>Aceitos</span><strong>{{ summary.accepted }}</strong></article>
+    <article class="stat-card"><span>Finalizados</span><strong>{{ summary.finished }}</strong></article>
+    <article class="stat-card"><span>Recusados</span><strong>{{ summary.rejected }}</strong></article>
+</section>
+
+<form class="search-panel compact-panel" method="get">
+    <div class="filter-grid four-columns">
+        <label>
+            <span>Status</span>
+            <select name="status">
+                <option value="">Todos</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>
+            <span>Data inicial</span>
+            <input type="date" name="date_from" value="{{ date_from }}">
+        </label>
+        <label>
+            <span>Data final</span>
+            <input type="date" name="date_to" value="{{ date_to }}">
+        </label>
+        <label>
+            <span>Codigo ou cliente</span>
+            <input type="search" name="q" value="{{ query }}" placeholder="Buscar pedido">
+        </label>
+    </div>
+    <button class="secondary-button" type="submit">Filtrar pedidos</button>
+</form>
+
 <section class="compare-card">
     {% if orders %}
         <div class="price-table-wrapper">
@@ -39,7 +74,7 @@
             </table>
         </div>
     {% else %}
-        <p class="empty-state">Nenhum pedido recebido ainda.</p>
+        <p class="empty-state">Nenhum pedido encontrado.</p>
     {% endif %}
 </section>
 {% endblock %}

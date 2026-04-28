@@ -55,6 +55,21 @@ class SupermarketCSVImportForm(forms.Form):
 
 
 class OrderStatusForm(forms.ModelForm):
+    status_note = forms.CharField(
+        label='Observacao do historico',
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 2}),
+    )
+
     class Meta:
         model = Order
         fields = ['status']
+
+
+class OrderInternalNotesForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = ['internal_notes']
+        widgets = {
+            'internal_notes': forms.Textarea(attrs={'rows': 4}),
+        }

@@ -1,5 +1,6 @@
 import uuid
 
+from django.conf import settings
 from django.db import models
 
 from products.models import Product
@@ -36,6 +37,7 @@ class Order(models.Model):
     customer_phone = models.CharField('telefone do cliente', max_length=30)
     customer_address = models.CharField('endereco do cliente', max_length=255, blank=True)
     notes = models.TextField('observacoes', blank=True)
+    internal_notes = models.TextField('observacoes internas', blank=True)
     status = models.CharField('status', max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
     total_amount = models.DecimalField('valor total', max_digits=10, decimal_places=2, default=0)
     created_at = models.DateTimeField('criado em', auto_now_add=True)
@@ -66,3 +68,27 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f'{self.product_name_snapshot} x{self.quantity}'
+
+
+class OrderStatusHistory(models.Model):
+    order = models.ForeignKey(Order, verbose_name='pedido', on_delete=models.CASCADE, related_name='status_history')
+    old_status = models.CharField('status anterior', max_length=20, choices=Order.STATUS_CHOICES, blank=True)
+    new_status = models.CharField('novo status', max_length=20, choices=Order.STATUS_CHOICES)
+    changed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name='alterado por',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='order_status_changes',
+    )
+    note = models.TextField('observacao', blank=True)
+    created_at = models.DateTimeField('criado em', auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'historico de status'
+        verbose_name_plural = 'historicos de status'
+
+    def __str__(self):
+        return f'{self.order.code}: {self.old_status} -> {self.new_status}'

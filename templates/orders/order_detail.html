@@ -29,6 +29,7 @@
                 {% if whatsapp_url %}
                     <a class="link-button" href="{{ whatsapp_url }}" target="_blank" rel="noopener">Enviar pelo WhatsApp</a>
                 {% endif %}
+                <a class="link-button secondary-button receipt-link" href="{% url 'order-receipt-public' order.code %}">Ver comprovante</a>
             </section>
 
             <section class="compare-card">

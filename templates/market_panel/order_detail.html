@@ -9,7 +9,10 @@
         <h1>{{ order.code }}</h1>
         <span class="muted">{{ order.created_at }}</span>
     </div>
-    <a class="link-button" href="{% url 'market-orders' %}">Voltar para pedidos</a>
+    <div class="list-actions">
+        <a class="link-button" href="{% url 'order-receipt-public' order.code %}">Comprovante</a>
+        <a class="link-button" href="{% url 'market-orders' %}">Voltar para pedidos</a>
+    </div>
 </div>
 
 <div class="checkout-grid">
@@ -19,13 +22,25 @@
             <p><strong>Nome:</strong> {{ order.customer_name }}</p>
             <p><strong>Telefone:</strong> {{ order.customer_phone }}</p>
             {% if order.customer_address %}<p><strong>Endereco:</strong> {{ order.customer_address }}</p>{% endif %}
-            {% if order.notes %}<p><strong>Observacoes:</strong> {{ order.notes }}</p>{% endif %}
-            <p><strong>Total:</strong> R$ {{ order.total_amount }}</p>
+            {% if order.notes %}<p><strong>Observacao do cliente:</strong> {{ order.notes }}</p>{% endif %}
+            <p><strong>Supermercado:</strong> {{ order.supermarket.name }}</p>
+            <p><strong>Status atual:</strong> {{ order.get_status_display }}</p>
+            <p><strong>Total final:</strong> R$ {{ order.total_amount }}</p>
         </div>
+
+        {% if has_valid_customer_phone %}
+            <div class="whatsapp-actions">
+                <a class="link-button" href="{{ call_customer_whatsapp_url }}" target="_blank" rel="noopener">Chamar cliente no WhatsApp</a>
+                <a class="link-button secondary-link" href="{{ summary_whatsapp_url }}" target="_blank" rel="noopener">Enviar resumo do pedido</a>
+            </div>
+        {% else %}
+            <p class="status unavailable">Telefone do cliente invalido para WhatsApp.</p>
+        {% endif %}
 
         <form method="post" class="panel-form status-form">
             {% csrf_token %}
-            {% for field in form %}
+            <input type="hidden" name="action" value="update_status">
+            {% for field in status_form %}
                 <label>
                     <span>{{ field.label }}</span>
                     {{ field }}
@@ -33,6 +48,19 @@
                 </label>
             {% endfor %}
             <button type="submit">Atualizar status</button>
+        </form>
+
+        <form method="post" class="panel-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_internal_notes">
+            {% for field in notes_form %}
+                <label>
+                    <span>{{ field.label }}</span>
+                    {{ field }}
+                    {{ field.errors }}
+                </label>
+            {% endfor %}
+            <button type="submit">Salvar observacao interna</button>
         </form>
     </section>
 
@@ -61,6 +89,23 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+
+        <div class="history-panel">
+            <h2>Historico de status</h2>
+            {% if order.status_history.all %}
+                <ul class="history-list">
+                    {% for history in order.status_history.all %}
+                        <li>
+                            <strong>{{ history.get_old_status_display|default:"Inicial" }} -> {{ history.get_new_status_display }}</strong>
+                            <span>{{ history.created_at }}{% if history.changed_by %} por {{ history.changed_by }}{% endif %}</span>
+                            {% if history.note %}<p>{{ history.note }}</p>{% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="empty-state">Nenhuma alteracao de status registrada ainda.</p>
+            {% endif %}
         </div>
     </section>
 </div>
