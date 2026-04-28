@@ -66,7 +66,7 @@ def build_order_preview(session_items, supermarket):
 
 
 @transaction.atomic
-def create_order_from_preview(supermarket, form_data, preview):
+def create_order_from_preview(supermarket, form_data, preview, customer_user=None):
     products_total = preview['total']
     fulfillment_method = form_data['fulfillment_method']
     delivery_fee = calculate_delivery_fee(supermarket, products_total, fulfillment_method)
@@ -74,6 +74,7 @@ def create_order_from_preview(supermarket, form_data, preview):
 
     order = Order.objects.create(
         supermarket=supermarket,
+        customer_user=customer_user if customer_user and customer_user.is_authenticated else None,
         customer_name=form_data['customer_name'],
         customer_phone=form_data['customer_phone'],
         notes=form_data.get('notes') or '',

@@ -44,6 +44,14 @@ class Order(models.Model):
         related_name='orders',
     )
     customer_name = models.CharField('nome do cliente', max_length=150)
+    customer_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        verbose_name='usuario cliente',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='customer_orders',
+    )
     customer_phone = models.CharField('telefone do cliente', max_length=30)
     customer_address = models.CharField('endereco do cliente', max_length=255, blank=True)
     notes = models.TextField('observacoes', blank=True)

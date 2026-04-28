@@ -1,0 +1,62 @@
+{% extends "customer/base.html" %}
+
+{% block title %}Pedido {{ order.code }}{% endblock %}
+
+{% block customer_content %}
+<div class="section-heading">
+    <div>
+        <p class="eyebrow">Acompanhamento</p>
+        <h1>Pedido {{ order.code }}</h1>
+        <span class="muted">{{ order.created_at }}</span>
+    </div>
+    <div class="list-actions">
+        <a class="link-button" href="{% url 'order-receipt-public' order.code %}">Comprovante</a>
+        <a class="link-button secondary-button" href="{% url 'customer-orders' %}">Meus pedidos</a>
+    </div>
+</div>
+
+<div class="checkout-grid">
+    <section class="compare-card">
+        <h2>Resumo</h2>
+        <div class="detail-list">
+            <p><strong>Supermercado:</strong> {{ order.supermarket.name }}</p>
+            <p><strong>Status:</strong> {{ order.get_status_display }}</p>
+            <p><strong>Atendimento:</strong> {{ order.get_fulfillment_method_display }}</p>
+            {% if order.fulfillment_method == "delivery" and order.delivery_address %}
+                <p><strong>Endereco:</strong> {{ order.delivery_address }}</p>
+            {% endif %}
+            <p><strong>Taxa de entrega:</strong> R$ {{ order.delivery_fee }}</p>
+            <p><strong>Total final:</strong> R$ {{ order.final_total }}</p>
+        </div>
+        {% if whatsapp_url %}
+            <a class="link-button" href="{{ whatsapp_url }}" target="_blank" rel="noopener">Falar com supermercado</a>
+        {% endif %}
+    </section>
+
+    <section class="compare-card">
+        <h2>Itens</h2>
+        <div class="price-table-wrapper">
+            <table class="price-table">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Qtd.</th>
+                        <th>Unitario</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items.all %}
+                        <tr>
+                            <td>{{ item.product_name_snapshot }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>R$ {{ item.unit_price }}</td>
+                            <td>R$ {{ item.subtotal }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

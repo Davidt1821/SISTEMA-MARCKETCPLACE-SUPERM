@@ -58,6 +58,13 @@
 
             <section class="compare-card form-card">
                 <h2>Dados do cliente</h2>
+                {% if not request.user.is_authenticated %}
+                    <p class="muted">Entre ou cadastre-se para acompanhar seus pedidos.</p>
+                    <div class="list-actions">
+                        <a class="table-action" href="{% url 'customer-login' %}">Entrar</a>
+                        <a class="table-action" href="{% url 'customer-register' %}">Criar conta</a>
+                    </div>
+                {% endif %}
                 <form method="post" class="panel-form">
                     {% csrf_token %}
                     {{ form.non_field_errors }}

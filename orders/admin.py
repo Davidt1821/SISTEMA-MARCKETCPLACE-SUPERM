@@ -22,6 +22,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = [
         'code',
         'supermarket',
+        'customer_user',
         'customer_name',
         'customer_phone',
         'fulfillment_method',
@@ -32,7 +33,7 @@ class OrderAdmin(admin.ModelAdmin):
         'created_at',
     ]
     list_filter = ['status', 'fulfillment_method', 'supermarket', 'created_at']
-    search_fields = ['code', 'customer_name', 'customer_phone', 'supermarket__name']
+    search_fields = ['code', 'customer_name', 'customer_phone', 'customer_user__email', 'supermarket__name']
     readonly_fields = ['code', 'total_amount', 'products_total', 'delivery_fee', 'final_total', 'created_at', 'updated_at']
     inlines = [OrderItemInline, OrderStatusHistoryInline]
 

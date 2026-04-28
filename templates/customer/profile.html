@@ -1,0 +1,22 @@
+{% extends "customer/base.html" %}
+
+{% block title %}Perfil do cliente{% endblock %}
+
+{% block customer_content %}
+<section class="compare-card form-card">
+    <p class="eyebrow">Minha conta</p>
+    <h1>Editar perfil</h1>
+    <form method="post" class="panel-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <label>
+                <span>{{ field.label }}</span>
+                {{ field }}
+                {{ field.errors }}
+            </label>
+        {% endfor %}
+        <button type="submit">Salvar perfil</button>
+    </form>
+</section>
+{% endblock %}

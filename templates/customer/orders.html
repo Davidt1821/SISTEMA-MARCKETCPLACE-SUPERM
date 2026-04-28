@@ -1,0 +1,45 @@
+{% extends "customer/base.html" %}
+
+{% block title %}Meus pedidos{% endblock %}
+
+{% block customer_content %}
+<div class="section-heading">
+    <h1>Meus pedidos</h1>
+    <a class="link-button" href="{% url 'home' %}">Voltar ao marketplace</a>
+</div>
+
+<section class="compare-card">
+    {% if orders %}
+        <div class="price-table-wrapper">
+            <table class="price-table">
+                <thead>
+                    <tr>
+                        <th>Codigo</th>
+                        <th>Supermercado</th>
+                        <th>Data</th>
+                        <th>Atendimento</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>{{ order.code }}</td>
+                            <td>{{ order.supermarket.name }}</td>
+                            <td>{{ order.created_at }}</td>
+                            <td>{{ order.get_fulfillment_method_display }}</td>
+                            <td>{{ order.get_status_display }}</td>
+                            <td>R$ {{ order.final_total }}</td>
+                            <td><a class="table-action" href="{% url 'customer-order-detail' order.code %}">Visualizar</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="empty-state">Nenhum pedido encontrado.</p>
+    {% endif %}
+</section>
+{% endblock %}

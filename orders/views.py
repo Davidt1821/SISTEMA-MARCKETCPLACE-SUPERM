@@ -24,7 +24,8 @@ def checkout(request, supermarket_id):
         messages.warning(request, 'Este supermercado nao possui produtos disponiveis da sua lista.')
         return redirect('shopping-list')
 
-    form = CheckoutForm(request.POST or None, supermarket=supermarket, products_total=preview['total'])
+    initial = get_checkout_initial(request)
+    form = CheckoutForm(request.POST or None, supermarket=supermarket, products_total=preview['total'], initial=initial)
     selected_fulfillment = (
         request.POST.get('fulfillment_method')
         or form.fields['fulfillment_method'].choices[0][0]
@@ -33,7 +34,12 @@ def checkout(request, supermarket_id):
     estimated_final_total = preview['total'] + estimated_delivery_fee
 
     if request.method == 'POST' and form.is_valid():
-        order = create_order_from_preview(supermarket, form.cleaned_data, preview)
+        order = create_order_from_preview(
+            supermarket,
+            form.cleaned_data,
+            preview,
+            customer_user=request.user if request.user.is_authenticated else None,
+        )
         request.session[SESSION_KEY] = {}
         request.session.modified = True
         messages.success(request, f'Pedido {order.code} criado com sucesso.')
@@ -46,6 +52,23 @@ def checkout(request, supermarket_id):
         'estimated_delivery_fee': estimated_delivery_fee,
         'estimated_final_total': estimated_final_total,
     })
+
+
+def get_checkout_initial(request):
+    if not request.user.is_authenticated or not hasattr(request.user, 'customer_profile'):
+        return {}
+
+    profile = request.user.customer_profile
+    return {
+        'customer_name': request.user.get_full_name() or request.user.username,
+        'customer_phone': profile.phone,
+        'delivery_street': profile.default_street,
+        'delivery_number': profile.default_number,
+        'delivery_district': profile.default_district,
+        'delivery_city': profile.default_city,
+        'delivery_complement': profile.default_complement,
+        'delivery_reference': profile.default_reference,
+    }
 
 
 def order_detail(request, code):

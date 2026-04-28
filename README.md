@@ -242,3 +242,40 @@ A importacao pelo painel:
 - cria ou atualiza `ProductPrice` para o supermercado logado;
 - cria promocao quando `promotion_price`, `promotion_start` e `promotion_end` forem informados;
 - continua processando as proximas linhas quando uma linha tem erro.
+
+## Area do cliente
+
+Rotas disponiveis:
+
+```text
+GET /cliente/cadastro/
+GET /cliente/login/
+GET /cliente/logout/
+GET /cliente/painel/
+GET /cliente/perfil/
+GET /cliente/pedidos/
+GET /cliente/pedidos/ABC123/
+```
+
+Como o cliente usa:
+
+1. Acesse `/cliente/cadastro/`.
+2. Informe nome, telefone, email e senha.
+3. O sistema cria um usuario Django e um perfil de cliente.
+4. Depois do cadastro, o cliente acessa `/cliente/painel/`.
+5. Em `/cliente/perfil/`, o cliente pode salvar telefone e endereco padrao.
+6. Ao finalizar um pedido logado, o pedido fica vinculado ao usuario.
+7. O cliente acompanha os pedidos em `/cliente/pedidos/`.
+
+Pedidos como convidado continuam funcionando:
+
+- o cliente pode finalizar pedido sem login;
+- esse pedido continua acessivel pela rota publica `/pedido/<codigo>/`;
+- pedidos convidados nao aparecem em `/cliente/pedidos/`, porque nao possuem usuario vinculado.
+
+Pedidos logados:
+
+- salvam o campo `customer_user`;
+- aparecem somente para o cliente dono do pedido;
+- continuam acessiveis por codigo na rota publica;
+- nao permitem alteracao de status pelo cliente.

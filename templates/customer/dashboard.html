@@ -1,0 +1,57 @@
+{% extends "customer/base.html" %}
+
+{% block title %}Painel do cliente{% endblock %}
+
+{% block customer_content %}
+<div class="section-heading">
+    <div>
+        <p class="eyebrow">Minha conta</p>
+        <h1>{{ request.user.get_full_name|default:request.user.username }}</h1>
+        <span class="muted">{{ profile.phone }}</span>
+    </div>
+    <div class="list-actions">
+        <a class="link-button" href="{% url 'customer-orders' %}">Ver pedidos</a>
+        <a class="link-button secondary-button" href="{% url 'customer-profile' %}">Editar perfil</a>
+        <a class="link-button secondary-button" href="{% url 'home' %}">Marketplace</a>
+    </div>
+</div>
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <span>Total de pedidos</span>
+        <strong>{{ orders_count }}</strong>
+    </article>
+</section>
+
+<section class="compare-card">
+    <h2>Pedidos recentes</h2>
+    {% if recent_orders %}
+        <div class="price-table-wrapper">
+            <table class="price-table">
+                <thead>
+                    <tr>
+                        <th>Codigo</th>
+                        <th>Supermercado</th>
+                        <th>Status</th>
+                        <th>Total</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                        <tr>
+                            <td>{{ order.code }}</td>
+                            <td>{{ order.supermarket.name }}</td>
+                            <td>{{ order.get_status_display }}</td>
+                            <td>R$ {{ order.final_total }}</td>
+                            <td><a class="table-action" href="{% url 'customer-order-detail' order.code %}">Visualizar</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p class="empty-state">Voce ainda nao possui pedidos vinculados a esta conta.</p>
+    {% endif %}
+</section>
+{% endblock %}

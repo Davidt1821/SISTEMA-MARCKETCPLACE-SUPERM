@@ -42,6 +42,7 @@ urlpatterns = [
     path('', include('public_pages.urls')),
     path('', include('orders.urls')),
     path('mercado/', include('accounts.urls')),
+    path('cliente/', include('accounts.customer_urls')),
     path(
         'admin/importar-csv/',
         admin.site.admin_view(
